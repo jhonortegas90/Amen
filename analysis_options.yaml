@@ -1,0 +1,10 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - 'functions/**'
+    - 'build/**'
+
+linter:
+  rules:
+    # avoid_print: false

@@ -1,0 +1,25 @@
+{
+  "name": "amen-functions",
+  "private": true,
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc",
+    "serve": "npm run build && PATH=\"/opt/homebrew/opt/openjdk/bin:$PATH\" npx firebase emulators:start --only functions,firestore,auth",
+    "test": "PATH=\"/opt/homebrew/opt/openjdk/bin:$PATH\" npx firebase emulators:exec --only firestore 'npx vitest run'",
+    "deploy": "npx firebase deploy --only functions,firestore"
+  },
+  "engines": {
+    "node": "22"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.5.0",
+    "firebase-functions": "^6.4.0"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.1",
+    "firebase-functions-test": "^3.5.0",
+    "firebase-tools": "^15.22.4",
+    "typescript": "^5.8.3",
+    "vitest": "^4.1.9"
+  }
+}

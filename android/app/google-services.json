@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "383976914048",
+    "project_id": "amen-b2dc0",
+    "storage_bucket": "amen-b2dc0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:383976914048:android:33ad73cda192faefe8ba65",
+        "android_client_info": {
+          "package_name": "com.amen.amen"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDEcI9UbfwAZLWg3aBm1hu3Ousg0l2zocA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

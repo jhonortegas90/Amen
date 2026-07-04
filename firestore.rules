@@ -1,0 +1,43 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    match /intentions/{intentionId} {
+      allow read: if resource.data.status == 'approved';
+      allow create: if signedIn()
+        && request.resource.data.authorUid == request.auth.uid
+        && request.resource.data.text is string
+        && request.resource.data.text.size() <= 250
+        && request.resource.data.amenCount == 0
+        && request.resource.data.isPinned == false;
+      allow update: if signedIn()
+        && (
+          (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['amenCount'])
+            && request.resource.data.amenCount == resource.data.amenCount + 1)
+          ||
+          (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isPinned', 'pinnedUntil'])
+            && request.resource.data.isPinned == true)
+        );
+      allow delete: if false;
+    }
+
+    match /reports/{reportId} {
+      allow read: if false;
+      allow create: if signedIn() && request.resource.data.reporterUid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    match /device_tokens/{uid}/tokens/{token} {
+      allow read: if false;
+      allow create, update, delete: if signedIn() && uid == request.auth.uid;
+    }
+
+    match /amen_events/{eventId} {
+      allow read, write: if false;
+    }
+  }
+}

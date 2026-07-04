@@ -1,0 +1,182 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.9 [39m[90m/Users/jhonalejandroortega/Developer/Amen/functions[39m
+
+ [31m❯[39m tests/rules.test.ts [2m([22m[2m9 tests[22m[2m | [22m[33m9 skipped[39m[2m)[22m[32m 10[2mms[22m[39m
+     [2m[90m↓[39m[22m allows anyone to read approved intentions
+     [2m[90m↓[39m[22m denies reading unapproved intentions
+     [2m[90m↓[39m[22m allows signed-in users to create an intention
+     [2m[90m↓[39m[22m denies creating an intention impersonating another user
+     [2m[90m↓[39m[22m denies users from directly updating an intention
+     [2m[90m↓[39m[22m denies users from deleting an intention
+     [2m[90m↓[39m[22m allows user to create their own device token
+     [2m[90m↓[39m[22m denies user from reading another's device token
+     [2m[90m↓[39m[22m denies user from writing to another's device token
+ [31m❯[39m test/firestore.rules.test.ts [2m([22m[2m5 tests[22m[2m | [22m[33m5 skipped[39m[2m)[22m[32m 11[2mms[22m[39m
+       [2m[90m↓[39m[22m allows anyone to read approved intentions
+       [2m[90m↓[39m[22m prevents users from impersonating another authorUid on create
+       [2m[90m↓[39m[22m prevents users from updating or deleting intentions directly
+       [2m[90m↓[39m[22m prevents reading tokens
+       [2m[90m↓[39m[22m allows users to write their own tokens
+ [31m❯[39m tests/functions.test.ts [2m([22m[2m6 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 24[2mms[22m[39m
+       [32m✓[39m should throw if unauthenticated[32m 1[2mms[22m[39m
+       [32m✓[39m should throw if text is missing or invalid[32m 0[2mms[22m[39m
+[31m       [31m×[31m should create an intention[39m[32m 21[2mms[22m[39m
+       [32m✓[39m should throw if unauthenticated[32m 0[2mms[22m[39m
+       [32m✓[39m should throw if intentionId is missing[32m 0[2mms[22m[39m
+       [32m✓[39m should throw if unauthenticated[32m 0[2mms[22m[39m
+ [31m❯[39m test/functions.test.ts [2m([22m[2m5 tests[22m[2m | [22m[31m5 failed[39m[2m)[22m[33m 50015[2mms[22m[39m
+[31m       [31m×[31m should require auth[39m[33m 10004[2mms[22m[39m
+[31m       [31m×[31m should clean text and create intention[39m[33m 10002[2mms[22m[39m
+[31m       [31m×[31m should increment amenCount and prevent duplicates[39m[33m 10002[2mms[22m[39m
+[31m       [31m×[31m should allow author to pin[39m[33m 10003[2mms[22m[39m
+[31m       [31m×[31m should prevent non-author from pinning[39m[33m 10001[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m test/firestore.rules.test.ts[2m > [22mFirestore Security Rules
+[41m[1m FAIL [22m[49m tests/rules.test.ts[2m [ tests/rules.test.ts ][22m
+[31m[1mTypeError[22m: fetch failed[39m
+[31m[1mCaused by: Error[22m: connect ECONNREFUSED 127.0.0.1:8080[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ errno: -61, code: 'ECONNREFUSED', syscall: 'connect', address: '127.0.0.1', port: 8080 }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m test/firestore.rules.test.ts[2m > [22mFirestore Security Rules
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'cleanup')[39m
+[36m [2m❯[22m test/firestore.rules.test.ts:[2m30:19[22m[39m
+    [90m 28|[39m
+    [90m 29|[39m   [34mafterAll[39m([35masync[39m () [33m=>[39m {
+    [90m 30|[39m     [35mawait[39m testEnv[33m.[39m[34mcleanup[39m()[33m;[39m
+    [90m   |[39m                   [31m^[39m
+    [90m 31|[39m   })[33m;[39m
+    [90m 32|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/rules.test.ts[2m [ tests/rules.test.ts ][22m
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'cleanup')[39m
+[90m [2m❯[22m tests/rules.test.ts:[2m25:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯[22m[39m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 6 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m test/functions.test.ts[2m > [22mCloud Functions[2m > [22mcreateIntention[2m > [22mshould require auth
+[41m[1m FAIL [22m[49m test/functions.test.ts[2m > [22mCloud Functions[2m > [22mcreateIntention[2m > [22mshould clean text and create intention
+[41m[1m FAIL [22m[49m test/functions.test.ts[2m > [22mCloud Functions[2m > [22msayAmen[2m > [22mshould increment amenCount and prevent duplicates
+[41m[1m FAIL [22m[49m test/functions.test.ts[2m > [22mCloud Functions[2m > [22mpinIntention[2m > [22mshould allow author to pin
+[41m[1m FAIL [22m[49m test/functions.test.ts[2m > [22mCloud Functions[2m > [22mpinIntention[2m > [22mshould prevent non-author from pinning
+[31m[1mError[22m: Hook timed out in 10000ms.
+If this is a long-running hook, pass a timeout value as the last argument or configure it globally with "hookTimeout".[39m
+[36m [2m❯[22m test/functions.test.ts:[2m27:3[22m[39m
+    [90m 25|[39m   })[33m;[39m
+    [90m 26|[39m
+    [90m 27|[39m   [34mbeforeEach[39m([35masync[39m () [33m=>[39m {
+    [90m   |[39m   [31m^[39m
+    [90m 28|[39m     [90m// Clear Firestore[39m
+    [90m 29|[39m     [35mconst[39m collections [33m=[39m [35mawait[39m db[33m.[39m[34mlistCollections[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/functions.test.ts[2m > [22mCloud Functions[2m > [22mcreateIntention[2m > [22mshould create an intention
+[31m[1mError[22m: The file at /Users/jhonalejandroortega/Developer/Amen/firebase-adminsdk.json does not exist, or it is not a file. ENOENT: no such file or directory, lstat '/Users/jhonalejandroortega/Developer/Amen/firebase-adminsdk.json'[39m
+[90m [2m❯[22m GoogleAuth._getApplicationCredentialsFromFilePath node_modules/google-gax/node_modules/google-auth-library/build/src/auth/googleauth.js:[2m375:27[22m[39m
+[90m [2m❯[22m GoogleAuth._tryGetApplicationCredentialsFromEnvironmentVariable node_modules/google-gax/node_modules/google-auth-library/build/src/auth/googleauth.js:[2m316:25[22m[39m
+[90m [2m❯[22m GoogleAuth.getApplicationDefaultAsync node_modules/google-gax/node_modules/google-auth-library/build/src/auth/googleauth.js:[2m260:24[22m[39m
+[90m [2m❯[22m GoogleAuth._GoogleAuth_determineClient node_modules/google-gax/node_modules/google-auth-library/build/src/auth/googleauth.js:[2m834:43[22m[39m
+[90m [2m❯[22m GoogleAuth.getClient node_modules/google-gax/node_modules/google-auth-library/build/src/auth/googleauth.js:[2m696:223[22m[39m
+[90m [2m❯[22m GrpcClient._getCredentials node_modules/google-gax/src/grpc.ts:[2m209:35[22m[39m
+[90m [2m❯[22m GrpcClient.createStub node_modules/google-gax/src/grpc.ts:[2m426:29[22m[39m
+[90m [2m❯[22m _firestore._traceUtil.startActiveSpan node_modules/@google-cloud/firestore/build/src/write-batch.js:[2m438:27[22m[39m
+[90m [2m❯[22m node_modules/@google-cloud/firestore/build/src/telemetry/enabled-trace-util.js:[2m110:30[22m[39m
+[90m [2m❯[22m NoopContextManager.with node_modules/@opentelemetry/api/src/context/NoopContextManager.ts:[2m20:14[22m[39m
+[90m [2m❯[22m ContextAPI.with node_modules/@opentelemetry/api/src/api/context.ts:[2m68:42[22m[39m
+[90m [2m❯[22m NoopTracer.startActiveSpan node_modules/@opentelemetry/api/src/trace/NoopTracer.ts:[2m87:27[22m[39m
+[90m [2m❯[22m ProxyTracer.startActiveSpan node_modules/@opentelemetry/api/src/trace/ProxyTracer.ts:[2m51:19[22m[39m
+[90m [2m❯[22m EnabledTraceUtil.startActiveSpan node_modules/@google-cloud/firestore/build/src/telemetry/enabled-trace-util.js:[2m102:28[22m[39m
+[90m [2m❯[22m WriteBatch.commit node_modules/@google-cloud/firestore/build/src/write-batch.js:[2m436:43[22m[39m
+[90m [2m❯[22m node_modules/@google-cloud/firestore/build/src/reference/document-reference.js:[2m350:31[22m[39m
+[90m [2m❯[22m node_modules/@google-cloud/firestore/build/src/telemetry/enabled-trace-util.js:[2m110:30[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/10]⎯[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Unhandled Errors [49m[22m[31m⎯⎯⎯⎯⎯⎯[39m
+[31m[1m
+Vitest caught 5 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.[22m[39m
+
+[31m⎯⎯⎯⎯⎯[39m[1m[41m Uncaught Exception [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: Could not load the default credentials. Browse to https://cloud.google.com/docs/authentication/getting-started for more information.[39m
+[90m [2m❯[22m GoogleAuth.getApplicationDefaultAsync node_modules/google-gax/node_modules/google-auth-library/build/src/auth/googleauth.js:[2m287:15[22m[39m
+[90m [2m❯[22m processTicksAndRejections node:internal/process/task_queues:[2m104:5[22m[39m
+[90m [2m❯[22m GoogleAuth._GoogleAuth_determineClient node_modules/google-gax/node_modules/google-auth-library/build/src/auth/googleauth.js:[2m834:32[22m[39m
+[90m [2m❯[22m GoogleAuth.getClient node_modules/google-gax/node_modules/google-auth-library/build/src/auth/googleauth.js:[2m698:20[22m[39m
+[90m [2m❯[22m GrpcClient._getCredentials node_modules/google-gax/build/src/grpc.js:[2m145:24[22m[39m
+[90m [2m❯[22m GrpcClient.createStub node_modules/google-gax/build/src/grpc.js:[2m318:23[22m[39m
+
+[31mThis error originated in "[1mtest/functions.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mshould require auth[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+
+[31m⎯⎯⎯⎯⎯[39m[1m[41m Uncaught Exception [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: Could not load the default credentials. Browse to https://cloud.google.com/docs/authentication/getting-started for more information.[39m
+[90m [2m❯[22m GoogleAuth.getApplicationDefaultAsync node_modules/google-gax/node_modules/google-auth-library/build/src/auth/googleauth.js:[2m287:15[22m[39m
+[90m [2m❯[22m GoogleAuth._GoogleAuth_determineClient node_modules/google-gax/node_modules/google-auth-library/build/src/auth/googleauth.js:[2m834:32[22m[39m
+[90m [2m❯[22m GoogleAuth.getClient node_modules/google-gax/node_modules/google-auth-library/build/src/auth/googleauth.js:[2m698:20[22m[39m
+[90m [2m❯[22m GrpcClient._getCredentials node_modules/google-gax/build/src/grpc.js:[2m145:24[22m[39m
+[90m [2m❯[22m GrpcClient.createStub node_modules/google-gax/build/src/grpc.js:[2m318:23[22m[39m
+
+[31mThis error originated in "[1mtest/functions.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mshould clean text and create intention[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+
+[31m⎯⎯⎯⎯⎯[39m[1m[41m Uncaught Exception [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: Could not load the default credentials. Browse to https://cloud.google.com/docs/authentication/getting-started for more information.[39m
+[90m [2m❯[22m GoogleAuth.getApplicationDefaultAsync node_modules/google-gax/node_modules/google-auth-library/build/src/auth/googleauth.js:[2m287:15[22m[39m
+[90m [2m❯[22m GoogleAuth._GoogleAuth_determineClient node_modules/google-gax/node_modules/google-auth-library/build/src/auth/googleauth.js:[2m834:32[22m[39m
+[90m [2m❯[22m GoogleAuth.getClient node_modules/google-gax/node_modules/google-auth-library/build/src/auth/googleauth.js:[2m698:20[22m[39m
+[90m [2m❯[22m GrpcClient._getCredentials node_modules/google-gax/build/src/grpc.js:[2m145:24[22m[39m
+[90m [2m❯[22m GrpcClient.createStub node_modules/google-gax/build/src/grpc.js:[2m318:23[22m[39m
+
+[31mThis error originated in "[1mtest/functions.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mshould increment amenCount and prevent duplicates[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+
+[31m⎯⎯⎯⎯⎯[39m[1m[41m Uncaught Exception [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: Could not load the default credentials. Browse to https://cloud.google.com/docs/authentication/getting-started for more information.[39m
+[90m [2m❯[22m GoogleAuth.getApplicationDefaultAsync node_modules/google-gax/node_modules/google-auth-library/build/src/auth/googleauth.js:[2m287:15[22m[39m
+[90m [2m❯[22m GoogleAuth._GoogleAuth_determineClient node_modules/google-gax/node_modules/google-auth-library/build/src/auth/googleauth.js:[2m834:32[22m[39m
+[90m [2m❯[22m GoogleAuth.getClient node_modules/google-gax/node_modules/google-auth-library/build/src/auth/googleauth.js:[2m698:20[22m[39m
+[90m [2m❯[22m GrpcClient._getCredentials node_modules/google-gax/build/src/grpc.js:[2m145:24[22m[39m
+[90m [2m❯[22m GrpcClient.createStub node_modules/google-gax/build/src/grpc.js:[2m318:23[22m[39m
+
+[31mThis error originated in "[1mtest/functions.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mshould allow author to pin[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+
+[31m⎯⎯⎯⎯⎯[39m[1m[41m Uncaught Exception [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: Could not load the default credentials. Browse to https://cloud.google.com/docs/authentication/getting-started for more information.[39m
+[90m [2m❯[22m GoogleAuth.getApplicationDefaultAsync node_modules/google-gax/node_modules/google-auth-library/build/src/auth/googleauth.js:[2m287:15[22m[39m
+[90m [2m❯[22m GoogleAuth._GoogleAuth_determineClient node_modules/google-gax/node_modules/google-auth-library/build/src/auth/googleauth.js:[2m834:32[22m[39m
+[90m [2m❯[22m GoogleAuth.getClient node_modules/google-gax/node_modules/google-auth-library/build/src/auth/googleauth.js:[2m698:20[22m[39m
+[90m [2m❯[22m GrpcClient._getCredentials node_modules/google-gax/build/src/grpc.js:[2m145:24[22m[39m
+[90m [2m❯[22m GrpcClient.createStub node_modules/google-gax/build/src/grpc.js:[2m318:23[22m[39m
+
+[31mThis error originated in "[1mtest/functions.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mshould prevent non-author from pinning[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+[31m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39m
+
+
+[2m Test Files [22m [1m[31m4 failed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[31m6 failed[39m[22m[2m | [22m[1m[32m5 passed[39m[22m[2m | [22m[33m14 skipped[39m[90m (25)[39m
+[2m     Errors [22m [1m[31m5 errors[39m[22m
+[2m   Start at [22m 02:07:39
+[2m   Duration [22m 50.34s[2m (transform 66ms, setup 0ms, import 712ms, tests 50.06s, environment 0ms)[22m
+

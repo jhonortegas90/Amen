@@ -1,0 +1,12 @@
+{
+  "@@locale": "fr",
+  "globalEchoWall": "Mur Echo Mondial",
+  "anonymousUnited": "Anonymes. Unis dans la prière.",
+  "pinned": "Épinglée",
+  "amen": "Amen",
+  "sharePrayer": "Partager une prière",
+  "composeTitle": "Dépose une prière silencieuse sur le mur.",
+  "composeHint": "Que portes-tu ce soir ?",
+  "postPrayer": "Publier la prière",
+  "someoneSaidAmen": "Quelqu’un vient de dire Amen à ta prière."
+}
