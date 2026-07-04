@@ -12,7 +12,12 @@
           "package_name": "com.amen.amen"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "383976914048-ibhcujimbun2m3ulqh8d9dt4oftcchj4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDEcI9UbfwAZLWg3aBm1hu3Ousg0l2zocA"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "383976914048-ibhcujimbun2m3ulqh8d9dt4oftcchj4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "383976914048-3qtd50q3voh7b0a50t544u3cm42feabi.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.amen.amen"
+              }
+            }
+          ]
         }
       }
     }

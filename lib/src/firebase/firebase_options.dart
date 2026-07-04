@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '383976914048',
     projectId: 'amen-b2dc0',
     storageBucket: 'amen-b2dc0.firebasestorage.app',
-    iosBundleId: 'com.amen.amen',
+    iosBundleId: 'com.amencircle.app',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -73,7 +73,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '383976914048',
     projectId: 'amen-b2dc0',
     storageBucket: 'amen-b2dc0.firebasestorage.app',
-    iosBundleId: 'com.amen.amen',
+    iosBundleId: 'com.amencircle.app',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

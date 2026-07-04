@@ -33,11 +33,18 @@ class AppUser {
 }
 
 class AuthRepository {
+  static const webClientId =
+      '383976914048-ibhcujimbun2m3ulqh8d9dt4oftcchj4.apps.googleusercontent.com';
+
   AuthRepository({
     required this.bootstrap,
     this.firebaseAuth,
     GoogleSignIn? googleSignIn,
-  }) : googleSignIn = googleSignIn ?? GoogleSignIn();
+  }) : googleSignIn = googleSignIn ??
+            GoogleSignIn(
+              clientId: kIsWeb ? webClientId : null,
+              serverClientId: webClientId,
+            );
 
   static const demoUid = 'demo-local-author';
 
