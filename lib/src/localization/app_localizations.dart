@@ -1156,6 +1156,64 @@ class AppLocalizations {
     'es': 'Cargando',
     'fr': 'Chargement',
   });
+
+  String get spiritualJourney => _pick({
+    'en': 'Spiritual Journey',
+    'es': 'Camino espiritual',
+    'fr': 'Chemin spirituel',
+  });
+  String get daysStreak => _pick({
+    'en': 'Days Streak',
+    'es': 'Días de racha',
+    'fr': 'Jours consécutifs',
+  });
+  String get shared => _pick({
+    'en': 'Shared',
+    'es': 'Compartido',
+    'fr': 'Partagé',
+  });
+  String get amens => _pick({
+    'en': 'Amens',
+    'es': 'Amenes',
+    'fr': 'Amens',
+  });
+  String get pilgrim => _pick({
+    'en': 'Pilgrim',
+    'es': 'Peregrino',
+    'fr': 'Pèlerin',
+  });
+
+  String badgeName(String name) {
+    final translated = <String, Map<String, String>>{
+      'Faithful Pilgrim': {
+        'en': 'Faithful Pilgrim',
+        'es': 'Peregrino fiel',
+        'fr': 'Pèlerin fidèle',
+      },
+      'First Prayer': {
+        'en': 'First Prayer',
+        'es': 'Primera oración',
+        'fr': 'Première prière',
+      },
+      'Three-Day Rhythm': {
+        'en': 'Three-Day Rhythm',
+        'es': 'Ritmo de tres días',
+        'fr': 'Rythme de trois jours',
+      },
+      'Week of Faithfulness': {
+        'en': 'Week of Faithfulness',
+        'es': 'Semana de fidelidad',
+        'fr': 'Semaine de fidélité',
+      },
+      'Prayer Anchor': {
+        'en': 'Prayer Anchor',
+        'es': 'Ancla de oración',
+        'fr': 'Ancre de prière',
+      },
+    }[name];
+
+    return translated == null ? name : _pick(translated);
+  }
 }
 
 class _AppLocalizationsDelegate

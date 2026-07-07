@@ -322,6 +322,7 @@ class ProfileScreen extends ConsumerWidget {
     WidgetRef ref,
     AppUser user,
   ) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -377,7 +378,7 @@ class ProfileScreen extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        user.displayName ?? 'Pilgrim',
+                        user.displayName ?? l10n.pilgrim,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           color: AmenColors.pureWhite,
                           fontWeight: FontWeight.bold,
@@ -416,18 +417,18 @@ class ProfileScreen extends ConsumerWidget {
                       color: AmenColors.amenGold.withValues(alpha: 0.25),
                     ),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.auto_awesome_rounded,
                         color: AmenColors.amenGold,
                         size: 12,
                       ),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Text(
-                        'Faithful Pilgrim',
-                        style: TextStyle(
+                        l10n.badgeName('Faithful Pilgrim'),
+                        style: const TextStyle(
                           color: AmenColors.amenGold,
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -579,6 +580,7 @@ class ProfileScreen extends ConsumerWidget {
     WidgetRef ref,
     AppUser user,
   ) {
+    final l10n = AppLocalizations.of(context);
     final repository = ref.watch(intentionsRepositoryProvider);
     final streak = ref.watch(prayerStreakProvider);
 
@@ -597,7 +599,7 @@ class ProfileScreen extends ConsumerWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSectionHeader(context, 'Spiritual Journey'),
+            _buildSectionHeader(context, l10n.spiritualJourney),
             const SizedBox(height: 6),
             IntrinsicHeight(
               child: Row(
@@ -607,7 +609,7 @@ class ProfileScreen extends ConsumerWidget {
                       icon: Icons.local_fire_department_rounded,
                       iconColor: const Color(0xFFFF8C00),
                       value: '${streak.currentStreak}',
-                      label: 'Days Streak',
+                      label: l10n.daysStreak,
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -616,7 +618,7 @@ class ProfileScreen extends ConsumerWidget {
                       icon: Icons.menu_book_rounded,
                       iconColor: AmenColors.blueMist,
                       value: '${mine.length}',
-                      label: 'Shared',
+                      label: l10n.shared,
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -625,7 +627,7 @@ class ProfileScreen extends ConsumerWidget {
                       icon: Icons.favorite_rounded,
                       iconColor: AmenColors.danger,
                       value: '$amensReceived',
-                      label: 'Amens',
+                      label: l10n.amens,
                     ),
                   ),
                 ],
@@ -644,7 +646,7 @@ class ProfileScreen extends ConsumerWidget {
                         size: 16,
                         color: AmenColors.amenGold,
                       ),
-                      label: Text(badge),
+                      label: Text(l10n.badgeName(badge)),
                       backgroundColor: AmenColors.amenGold.withValues(
                         alpha: 0.10,
                       ),
