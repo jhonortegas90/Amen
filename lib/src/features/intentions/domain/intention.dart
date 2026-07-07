@@ -35,6 +35,9 @@ class Intention {
     required this.locale,
     required this.status,
     this.category = PrayerCategory.general,
+    this.isAnonymous = true,
+    this.authorName,
+    this.authorAvatarUrl,
   });
 
   final String id;
@@ -47,6 +50,9 @@ class Intention {
   final String locale;
   final String status;
   final PrayerCategory category;
+  final bool isAnonymous;
+  final String? authorName;
+  final String? authorAvatarUrl;
 
   bool get isCurrentlyPinned {
     if (!isPinned) return false;
@@ -65,6 +71,9 @@ class Intention {
     String? locale,
     String? status,
     PrayerCategory? category,
+    bool? isAnonymous,
+    String? authorName,
+    String? authorAvatarUrl,
   }) {
     return Intention(
       id: id ?? this.id,
@@ -77,6 +86,9 @@ class Intention {
       locale: locale ?? this.locale,
       status: status ?? this.status,
       category: category ?? this.category,
+      isAnonymous: isAnonymous ?? this.isAnonymous,
+      authorName: authorName ?? this.authorName,
+      authorAvatarUrl: authorAvatarUrl ?? this.authorAvatarUrl,
     );
   }
 
@@ -103,6 +115,9 @@ class Intention {
       locale: data['locale'] as String? ?? 'en',
       status: data['status'] as String? ?? 'approved',
       category: PrayerCategory.fromString(data['category'] as String?),
+      isAnonymous: data['isAnonymous'] as bool? ?? true,
+      authorName: data['authorName'] as String?,
+      authorAvatarUrl: data['authorAvatarUrl'] as String?,
     );
   }
 }

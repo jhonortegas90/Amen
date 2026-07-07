@@ -48,26 +48,16 @@ describe("Firestore Security Rules", () => {
       await assertFails(db.collection("intentions").doc("pending-1").get());
     });
 
-    it("prevents users from impersonating another authorUid on create", async () => {
+    it("prevents client-created intentions", async () => {
       const alice = testEnv.authenticatedContext("alice").firestore();
 
       await assertFails(
         alice.collection("intentions").doc("intent-1").set({
-          authorUid: "bob",
-          text: "Hello",
-          amenCount: 0,
-          isPinned: false,
-          status: "pending",
-        })
-      );
-
-      await assertSucceeds(
-        alice.collection("intentions").doc("intent-2").set({
           authorUid: "alice",
           text: "Hello",
           amenCount: 0,
           isPinned: false,
-          status: "pending",
+          status: "approved",
         })
       );
     });
@@ -92,6 +82,60 @@ describe("Firestore Security Rules", () => {
       );
 
       await assertFails(alice.collection("intentions").doc("alice-intent").delete());
+    });
+  });
+
+  describe("notifications", () => {
+    it("prevents client-created notifications", async () => {
+      const alice = testEnv.authenticatedContext("alice").firestore();
+
+      await assertFails(
+        alice.collection("notifications").doc("notification-1").set({
+          recipientUid: "bob",
+          senderUid: "alice",
+          type: "supportMessage",
+          isRead: false,
+        })
+      );
+    });
+
+    it("allows recipients to mark only isRead", async () => {
+      const alice = testEnv.authenticatedContext("alice").firestore();
+
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await context.firestore().collection("notifications").doc("notification-1").set({
+          recipientUid: "alice",
+          senderUid: "bob",
+          type: "supportMessage",
+          isRead: false,
+        });
+      });
+
+      await assertSucceeds(
+        alice.collection("notifications").doc("notification-1").update({
+          isRead: true,
+        })
+      );
+
+      await assertFails(
+        alice.collection("notifications").doc("notification-1").update({
+          messageText: "changed",
+        })
+      );
+    });
+  });
+
+  describe("reports", () => {
+    it("prevents client-created reports", async () => {
+      const alice = testEnv.authenticatedContext("alice").firestore();
+
+      await assertFails(
+        alice.collection("reports").doc("report-1").set({
+          intentionId: "intent-1",
+          reporterUid: "alice",
+          reason: "Spam",
+        })
+      );
     });
   });
 
@@ -125,6 +169,120 @@ describe("Firestore Security Rules", () => {
           token: "token-2",
         })
       );
+    });
+  });
+
+  describe("prayer catalog", () => {
+    it("allows public reads for published catalog content", async () => {
+      const db = testEnv.unauthenticatedContext().firestore();
+
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await context
+          .firestore()
+          .collection("prayer_catalog_published")
+          .doc("en")
+          .collection("prayers")
+          .doc("prayer-1")
+          .set({
+            title: "Published",
+            isActive: true,
+          });
+      });
+
+      await assertSucceeds(
+        db
+          .collection("prayer_catalog_published")
+          .doc("en")
+          .collection("prayers")
+          .doc("prayer-1")
+          .get()
+      );
+    });
+
+    it("allows only catalog admins to write draft catalog content", async () => {
+      const admin = testEnv.authenticatedContext("admin", {
+        catalogAdmin: true,
+        email: "j.a.t.creativestudios@gmail.com",
+      }).firestore();
+      const user = testEnv.authenticatedContext("user").firestore();
+
+      await assertSucceeds(
+        admin
+          .collection("prayer_catalog_drafts")
+          .doc("shared")
+          .collection("categories")
+          .doc("cat-1")
+          .set({
+            sortOrder: 1,
+            isActive: true,
+          })
+      );
+
+      await assertFails(
+        user
+          .collection("prayer_catalog_drafts")
+          .doc("shared")
+          .collection("categories")
+          .doc("cat-2")
+          .set({
+            sortOrder: 2,
+            isActive: true,
+          })
+      );
+    });
+
+    it("denies access to catalog admins with a different email", async () => {
+      const wrongAdmin = testEnv.authenticatedContext("wrongAdmin", {
+        catalogAdmin: true,
+        email: "not.admin@gmail.com",
+      }).firestore();
+
+      await assertFails(
+        wrongAdmin
+          .collection("prayer_catalog_drafts")
+          .doc("shared")
+          .collection("categories")
+          .doc("cat-3")
+          .set({
+            sortOrder: 3,
+            isActive: true,
+          })
+      );
+    });
+
+    it("blocks client writes to published catalog content", async () => {
+      const admin = testEnv.authenticatedContext("admin", {
+        catalogAdmin: true,
+        email: "j.a.t.creativestudios@gmail.com",
+      }).firestore();
+
+      await assertFails(
+        admin
+          .collection("prayer_catalog_published")
+          .doc("en")
+          .collection("prayers")
+          .doc("prayer-1")
+          .set({
+            title: "No direct publish",
+          })
+      );
+    });
+
+    it("restricts catalog audit reads to catalog admins", async () => {
+      const admin = testEnv.authenticatedContext("admin", {
+        catalogAdmin: true,
+        email: "j.a.t.creativestudios@gmail.com",
+      }).firestore();
+      const user = testEnv.authenticatedContext("user").firestore();
+
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await context.firestore().collection("catalog_admin_audit").doc("audit-1").set({
+          action: "publishPrayerCatalog",
+        });
+      });
+
+      await assertSucceeds(admin.collection("catalog_admin_audit").doc("audit-1").get());
+      await assertFails(user.collection("catalog_admin_audit").doc("audit-1").get());
     });
   });
 });

@@ -14,6 +14,7 @@ class AmenColors {
   static const mutedText = Color(0xFFB8C2D6);
   static const blueMist = Color(0xFF6EA7FF);
   static const amenGold = Color(0xFFFFD700);
+  static const goldLight = Color(0xFFFFF099);
   static const warmGold = Color(0xFFFFB84A);
   static const danger = Color(0xFFFF6B7A);
 }

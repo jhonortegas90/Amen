@@ -43,6 +43,19 @@ class NotificationService {
       // Notification registration should never block the prayer wall.
     }
   }
+
+  Future<NotificationSettings?> requestAuthorizationPermission() async {
+    try {
+      final messagingClient = messaging ?? FirebaseMessaging.instance;
+      return await messagingClient.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 final notificationServiceProvider = Provider<NotificationService>((ref) {

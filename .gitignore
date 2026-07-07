@@ -43,3 +43,15 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Dependency directories
+**/node_modules/
+node_modules/
+
+# Firebase cache/debug
+.firebase/
+*.log
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+

@@ -2,7 +2,9 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../design_system/amen_button_label.dart';
 import '../../../design_system/amen_colors.dart';
+import '../../../localization/app_localizations.dart';
 
 void showReportDialog(BuildContext context, WidgetRef ref, String intentionId) {
   showDialog<void>(
@@ -33,11 +35,14 @@ class _ReportDialogState extends ConsumerState<_ReportDialog> {
   ];
 
   Future<void> _submitReport() async {
+    final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
     setState(() => _isSubmitting = true);
     try {
-      final callable = FirebaseFunctions.instance.httpsCallable('reportIntention');
+      final callable = FirebaseFunctions.instance.httpsCallable(
+        'reportIntention',
+      );
       await callable.call(<String, dynamic>{
         'intentionId': widget.intentionId,
         'reason': _selectedReason,
@@ -45,8 +50,8 @@ class _ReportDialogState extends ConsumerState<_ReportDialog> {
       if (mounted) {
         navigator.pop();
         messenger.showSnackBar(
-          const SnackBar(
-            content: Text('Thank you. Post reported for moderator review.'),
+          SnackBar(
+            content: Text(l10n.reportThanks),
             backgroundColor: AmenColors.nightElevated,
           ),
         );
@@ -56,8 +61,8 @@ class _ReportDialogState extends ConsumerState<_ReportDialog> {
         navigator.pop();
         messenger.showSnackBar(
           SnackBar(
-            content: Text('Report submitted: $_selectedReason'),
-            backgroundColor: AmenColors.nightElevated,
+            content: Text(l10n.reportError(e)),
+            backgroundColor: Colors.red.shade900,
           ),
         );
       }
@@ -68,71 +73,89 @@ class _ReportDialogState extends ConsumerState<_ReportDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return AlertDialog(
       backgroundColor: AmenColors.night,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
         side: BorderSide(color: AmenColors.amenGold.withValues(alpha: 0.3)),
       ),
-      title: const Row(
+      title: Row(
         children: [
-          Icon(Icons.flag_outlined, color: Colors.orangeAccent),
-          SizedBox(width: 10),
+          const Icon(Icons.flag_outlined, color: Colors.orangeAccent),
+          const SizedBox(width: 10),
           Text(
-            'Report Post',
-            style: TextStyle(color: AmenColors.pureWhite, fontSize: 18),
+            l10n.reportPost,
+            style: const TextStyle(color: AmenColors.pureWhite, fontSize: 18),
           ),
         ],
       ),
       content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Please select the reason for reporting this intention:',
-              style: TextStyle(color: AmenColors.mutedText, fontSize: 14),
-            ),
-            const SizedBox(height: 16),
-            ..._reasons.map((reason) {
-              return ListTile(
-                leading: Radio<String>(
-                  value: reason,
-                  groupValue: _selectedReason,
-                  activeColor: AmenColors.amenGold,
-                  onChanged: (val) {
-                    if (val != null) setState(() => _selectedReason = val);
-                  },
+        child: RadioGroup<String>(
+          groupValue: _selectedReason,
+          onChanged: (value) {
+            if (value != null) setState(() => _selectedReason = value);
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.reportPrompt,
+                style: const TextStyle(
+                  color: AmenColors.mutedText,
+                  fontSize: 14,
                 ),
-                title: Text(
-                  reason,
-                  style: const TextStyle(color: AmenColors.pureWhite, fontSize: 14),
-                ),
-                onTap: () => setState(() => _selectedReason = reason),
-              );
-            }),
-          ],
+              ),
+              const SizedBox(height: 16),
+              ..._reasons.map((reason) {
+                return ListTile(
+                  leading: Radio<String>(
+                    value: reason,
+                    activeColor: AmenColors.amenGold,
+                  ),
+                  title: Text(
+                    l10n.reportReason(reason),
+                    style: const TextStyle(
+                      color: AmenColors.pureWhite,
+                      fontSize: 14,
+                    ),
+                  ),
+                  onTap: () => setState(() => _selectedReason = reason),
+                );
+              }),
+            ],
+          ),
         ),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel', style: TextStyle(color: AmenColors.mutedText)),
+          child: Text(
+            l10n.cancel,
+            style: const TextStyle(color: AmenColors.mutedText),
+          ),
         ),
         ElevatedButton(
           onPressed: _isSubmitting ? null : _submitReport,
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.orangeAccent,
             foregroundColor: Colors.black,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
           child: _isSubmitting
               ? const SizedBox(
                   width: 18,
                   height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.black,
+                  ),
                 )
-              : const Text('Submit Report'),
+              : AmenButtonLabel(l10n.submitReport),
         ),
       ],
     );

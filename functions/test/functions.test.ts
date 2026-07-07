@@ -97,6 +97,58 @@ describe("Cloud Functions", () => {
     });
   });
 
+  describe("sendSupportMessage", () => {
+    it("should create a support notification from server-owned intention data", async () => {
+      const intentionRef = db.collection("intentions").doc("intent-1");
+      await intentionRef.set({
+        authorUid: "author1",
+        text: "Pray for peace",
+        category: "peace",
+        status: "approved",
+      });
+
+      const wrapped = testEnv.wrap(myFunctions.sendSupportMessage);
+      const res = await wrapped({
+        data: {
+          intentionId: "intent-1",
+          messageText: "Standing with you in prayer.",
+          senderName: "Grace",
+        },
+        auth: { uid: "supporter1" },
+      });
+
+      expect(res.id).toBeDefined();
+      const notification = await db.collection("notifications").doc(res.id).get();
+      expect(notification.exists).toBe(true);
+      expect(notification.data()?.recipientUid).toBe("author1");
+      expect(notification.data()?.senderUid).toBe("supporter1");
+      expect(notification.data()?.senderName).toBe("Grace");
+      expect(notification.data()?.intentionText).toBe("Pray for peace");
+      expect(notification.data()?.category).toBe("peace");
+      expect(notification.data()?.type).toBe("supportMessage");
+      expect(notification.data()?.messageText).toBe("Standing with you in prayer.");
+    });
+
+    it("should prevent support messages to yourself", async () => {
+      const intentionRef = db.collection("intentions").doc("intent-1");
+      await intentionRef.set({
+        authorUid: "author1",
+        text: "Pray for peace",
+        category: "peace",
+        status: "approved",
+      });
+
+      const wrapped = testEnv.wrap(myFunctions.sendSupportMessage);
+      await expect(wrapped({
+        data: {
+          intentionId: "intent-1",
+          messageText: "Standing with myself.",
+        },
+        auth: { uid: "author1" },
+      })).rejects.toThrow("You cannot send a support message to yourself.");
+    });
+  });
+
   describe("pinIntention", () => {
     it("should allow author to pin", async () => {
       const intentionRef = db.collection("intentions").doc("intent-1");

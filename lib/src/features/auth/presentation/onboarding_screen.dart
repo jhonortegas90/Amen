@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../design_system/amen_button_label.dart';
 import '../../../design_system/amen_colors.dart';
+import '../../../localization/app_localizations.dart';
 import '../data/auth_repository.dart';
-import 'config/onboarding_config.dart';
 import 'widgets/animated_collage_background.dart';
 import 'widgets/legal_terms_modal.dart';
 
@@ -29,7 +30,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     });
     try {
       final repo = ref.read(authRepositoryProvider);
-      await repo.signInWithGoogle();
+      final credential = await repo.signInWithGoogle();
+      final signedIn =
+          credential?.user?.isAnonymous == false ||
+          repo.currentUser?.isAnonymous == false;
+      if (!signedIn) {
+        throw StateError(
+          'Google sign-in did not complete. Please choose your Google account again.',
+        );
+      }
       if (mounted) context.go('/');
     } catch (e) {
       if (mounted) setState(() => _error = e.toString());
@@ -45,7 +54,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     });
     try {
       final repo = ref.read(authRepositoryProvider);
-      await repo.signInWithApple();
+      final credential = await repo.signInWithApple();
+      final signedIn =
+          credential?.user?.isAnonymous == false ||
+          repo.currentUser?.isAnonymous == false;
+      if (!signedIn) {
+        throw StateError(
+          'Apple sign-in did not complete. Please choose your Apple account again.',
+        );
+      }
       if (mounted) context.go('/');
     } catch (e) {
       if (mounted) setState(() => _error = e.toString());
@@ -56,6 +73,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
@@ -181,10 +199,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           child: _GlassmorphicCard(
                             borderRadius: 34,
                             padding: EdgeInsets.fromLTRB(
-                              isCompact ? 18 : 22,
-                              isCompact ? 18 : 22,
-                              isCompact ? 18 : 22,
-                              isCompact ? 18 : 20,
+                              isCompact ? 16 : 22,
+                              isCompact ? 14 : 22,
+                              isCompact ? 16 : 22,
+                              isCompact ? 12 : 20,
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -200,9 +218,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                     height: 23,
                                     filterQuality: FilterQuality.high,
                                   ),
-                                  label: OnboardingConfig.googleButtonText,
+                                  label: l10n.signInWithGoogle,
                                 ),
-                                const SizedBox(height: 14),
+                                SizedBox(height: isCompact ? 10 : 14),
                                 _AuthPillButton(
                                   onPressed: _handleAppleSignIn,
                                   backgroundColor: Colors.black,
@@ -212,23 +230,30 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                     color: Colors.white,
                                     size: 24,
                                   ),
-                                  label: OnboardingConfig.appleButtonText,
+                                  label: l10n.signInWithApple,
                                 ),
-                                const SizedBox(height: 21),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                                SizedBox(height: isCompact ? 8 : 12),
+                                Center(
+                                  child: _LegalLink(
+                                    text: l10n.continueAsGuest,
+                                    onTap: () => context.go('/'),
+                                  ),
+                                ),
+                                SizedBox(height: isCompact ? 8 : 12),
+                                Wrap(
+                                  alignment: WrapAlignment.center,
+                                  spacing: 22,
+                                  runSpacing: 6,
                                   children: [
                                     _LegalLink(
-                                      text: OnboardingConfig.privacyPolicyTitle,
+                                      text: l10n.privacyPolicy,
                                       onTap: () => showLegalTermsModal(
                                         context,
                                         isPrivacy: true,
                                       ),
                                     ),
-                                    const SizedBox(width: 30),
                                     _LegalLink(
-                                      text:
-                                          OnboardingConfig.termsOfServiceTitle,
+                                      text: l10n.termsOfService,
                                       onTap: () => showLegalTermsModal(
                                         context,
                                         isPrivacy: false,
@@ -271,7 +296,7 @@ class _AuthPillButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 58,
+      height: 52,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
@@ -297,14 +322,7 @@ class _AuthPillButton extends StatelessWidget {
           children: [
             SizedBox(width: 26, height: 26, child: Center(child: icon)),
             const SizedBox(width: 12),
-            Flexible(
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.fade,
-                softWrap: false,
-              ),
-            ),
+            Flexible(child: AmenButtonLabel(label)),
           ],
         ),
       ),

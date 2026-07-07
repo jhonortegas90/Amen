@@ -98,25 +98,62 @@ class _PinnedIntentionCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: AmenColors.night,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
-                        '${intention.category.icon} ${intention.category.displayName}',
-                        style: const TextStyle(fontSize: 11, color: AmenColors.mutedText),
+                        '${intention.category.icon} '
+                        '${l10n.prayerCategory(intention.category.displayName)}',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AmenColors.mutedText,
+                        ),
                       ),
                     ),
                     const Spacer(),
                     IconButton(
-                      icon: const Icon(Icons.flag_outlined, size: 18, color: AmenColors.mutedText),
+                      icon: const Icon(
+                        Icons.flag_outlined,
+                        size: 18,
+                        color: AmenColors.mutedText,
+                      ),
                       onPressed: onReport,
-                      tooltip: 'Report Post',
+                      tooltip: l10n.reportPost,
                     ),
                   ],
                 ),
                 const SizedBox(height: 14),
+                if (!intention.isAnonymous) ...[
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 11,
+                        backgroundColor: AmenColors.night,
+                        backgroundImage: intention.authorAvatarUrl != null
+                            ? NetworkImage(intention.authorAvatarUrl!)
+                            : null,
+                        child: intention.authorAvatarUrl == null
+                            ? const Icon(Icons.person, size: 11, color: AmenColors.mutedText)
+                            : null,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        intention.authorName ?? 'Pilgrim',
+                        style: const TextStyle(
+                          color: AmenColors.mutedText,
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                ],
                 Text(
                   intention.text,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -174,15 +211,23 @@ class _QuietIntentionRow extends StatelessWidget {
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: AmenColors.nightElevated,
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: AmenColors.blueMist.withValues(alpha: 0.2)),
+                            border: Border.all(
+                              color: AmenColors.blueMist.withValues(alpha: 0.2),
+                            ),
                           ),
                           child: Text(
                             '${intention.category.icon} ${intention.category.displayName}',
-                            style: const TextStyle(fontSize: 11, color: AmenColors.amenGold),
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: AmenColors.amenGold,
+                            ),
                           ),
                         ),
                         const Spacer(),
@@ -191,12 +236,42 @@ class _QuietIntentionRow extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                           child: const Padding(
                             padding: EdgeInsets.all(4),
-                            child: Icon(Icons.flag_outlined, size: 16, color: AmenColors.mutedText),
+                            child: Icon(
+                              Icons.flag_outlined,
+                              size: 16,
+                              color: AmenColors.mutedText,
+                            ),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
+                    if (!intention.isAnonymous) ...[
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 11,
+                            backgroundColor: AmenColors.nightElevated,
+                            backgroundImage: intention.authorAvatarUrl != null
+                                ? NetworkImage(intention.authorAvatarUrl!)
+                                : null,
+                            child: intention.authorAvatarUrl == null
+                                ? const Icon(Icons.person, size: 11, color: AmenColors.mutedText)
+                                : null,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            intention.authorName ?? 'Pilgrim',
+                            style: const TextStyle(
+                              color: AmenColors.mutedText,
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                    ],
                     Text(
                       intention.text,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -224,7 +299,7 @@ class _QuietIntentionRow extends StatelessWidget {
               ),
               const SizedBox(width: 16),
               AmenButton(
-                count: intention.amenCount, 
+                count: intention.amenCount,
                 onPressed: onAmen,
                 large: false,
               ),

@@ -1,0 +1,39 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function catalogAdmin() {
+      return signedIn()
+        && request.auth.token.email == 'j.a.t.creativestudios@gmail.com'
+        && request.auth.token.catalogAdmin == true;
+    }
+
+    function allowedDraftMedia() {
+      return request.resource.size <= 50 * 1024 * 1024
+        && (
+          (request.resource.contentType.matches('image/.*')
+            && request.resource.size <= 10 * 1024 * 1024)
+          || request.resource.contentType.matches('audio/.*')
+        );
+    }
+
+    match /prayer_catalog/drafts/{allPaths=**} {
+      allow read, delete: if catalogAdmin();
+      allow create, update: if catalogAdmin() && allowedDraftMedia();
+    }
+
+    match /altar_music/{allPaths=**} {
+      allow read: if true;
+      allow write, delete: if catalogAdmin() && allowedDraftMedia();
+    }
+
+    match /prayer_catalog/published/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

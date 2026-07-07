@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
@@ -13,13 +12,18 @@ import '../domain/intention.dart';
 abstract class IntentionsRepository {
   bool get isLive;
   Stream<List<Intention>> watchGlobalWall();
-  Future<Intention> createIntention(String text, String locale, {PrayerCategory category});
+  Future<Intention> createIntention(
+    String text,
+    String locale, {
+    PrayerCategory category,
+    bool isAnonymous,
+  });
   Future<void> sayAmen(String intentionId);
   Future<void> pinIntention(String intentionId);
 }
 
 class DemoIntentionsRepository implements IntentionsRepository {
-  DemoIntentionsRepository({required this.currentUid}) {
+  DemoIntentionsRepository({required this.currentAppUser}) {
     _intentions = [
       Intention(
         id: 'pinned-peace',
@@ -81,7 +85,8 @@ class DemoIntentionsRepository implements IntentionsRepository {
     _emit();
   }
 
-  final String currentUid;
+  final AppUser? currentAppUser;
+  String get currentUid => currentAppUser?.uid ?? 'guest';
   final _controller = StreamController<List<Intention>>.broadcast();
   final _amened = <String>{};
   late List<Intention> _intentions;
@@ -100,6 +105,7 @@ class DemoIntentionsRepository implements IntentionsRepository {
     String text,
     String locale, {
     PrayerCategory category = PrayerCategory.general,
+    bool isAnonymous = true,
   }) async {
     final intention = Intention(
       id: const Uuid().v4(),
@@ -111,6 +117,11 @@ class DemoIntentionsRepository implements IntentionsRepository {
       locale: locale,
       status: 'approved',
       category: category,
+      isAnonymous: isAnonymous,
+      authorName: isAnonymous
+          ? null
+          : (currentAppUser?.displayName ?? 'Pilgrim'),
+      authorAvatarUrl: isAnonymous ? null : currentAppUser?.photoUrl,
     );
     _intentions = [intention, ..._intentions];
     _emit();
@@ -191,89 +202,37 @@ class FirebaseIntentionsRepository implements IntentionsRepository {
     String text,
     String locale, {
     PrayerCategory category = PrayerCategory.general,
+    bool isAnonymous = true,
   }) async {
-    try {
-      final result = await _functions.httpsCallable('createIntention').call({
-        'text': text.trim(),
-        'locale': locale,
-        'category': category.name,
-        'schemaVersion': 1,
-      });
-      final id = (result.data as Map?)?['id'] as String?;
-      if (id == null) {
-        throw StateError('createIntention did not return an id.');
-      }
-      final snapshot = await _firestore.collection('intentions').doc(id).get();
-      return Intention.fromFirestore(snapshot);
-    } catch (e) {
-      if (e is FirebaseFunctionsException &&
-          (e.code == 'not-found' ||
-           e.code == 'unavailable' ||
-           e.code == 'unimplemented')) {
-        final uid = FirebaseAuth.instance.currentUser?.uid ?? 'anonymous';
-        final docRef = _firestore.collection('intentions').doc();
-        await docRef.set({
-          'authorUid': uid,
-          'text': text.trim(),
-          'category': category.name,
-          'createdAt': FieldValue.serverTimestamp(),
-          'amenCount': 0,
-          'isPinned': false,
-          'pinnedUntil': null,
-          'locale': locale,
-          'status': 'approved',
-          'schemaVersion': 1,
-        });
-        final snapshot = await docRef.get();
-        return Intention.fromFirestore(snapshot);
-      }
-      rethrow;
+    final result = await _functions.httpsCallable('createIntention').call({
+      'text': text.trim(),
+      'locale': locale,
+      'category': category.name,
+      'isAnonymous': isAnonymous,
+      'schemaVersion': 1,
+    });
+    final id = (result.data as Map?)?['id'] as String?;
+    if (id == null) {
+      throw StateError('createIntention did not return an id.');
     }
+    final snapshot = await _firestore.collection('intentions').doc(id).get();
+    return Intention.fromFirestore(snapshot);
   }
 
   @override
   Future<void> sayAmen(String intentionId) async {
-    try {
-      await _functions.httpsCallable('sayAmen').call({
-        'intentionId': intentionId,
-        'schemaVersion': 1,
-      });
-    } catch (e) {
-      if (e is FirebaseFunctionsException &&
-          (e.code == 'not-found' ||
-           e.code == 'unavailable' ||
-           e.code == 'unimplemented')) {
-        await _firestore.collection('intentions').doc(intentionId).update({
-          'amenCount': FieldValue.increment(1),
-        });
-        return;
-      }
-      rethrow;
-    }
+    await _functions.httpsCallable('sayAmen').call({
+      'intentionId': intentionId,
+      'schemaVersion': 1,
+    });
   }
 
   @override
   Future<void> pinIntention(String intentionId) async {
-    try {
-      await _functions.httpsCallable('pinIntention').call({
-        'intentionId': intentionId,
-        'schemaVersion': 1,
-      });
-    } catch (e) {
-      if (e is FirebaseFunctionsException &&
-          (e.code == 'not-found' ||
-           e.code == 'unavailable' ||
-           e.code == 'unimplemented')) {
-        await _firestore.collection('intentions').doc(intentionId).update({
-          'isPinned': true,
-          'pinnedUntil': Timestamp.fromDate(
-            DateTime.now().add(const Duration(hours: 2)),
-          ),
-        });
-        return;
-      }
-      rethrow;
-    }
+    await _functions.httpsCallable('pinIntention').call({
+      'intentionId': intentionId,
+      'schemaVersion': 1,
+    });
   }
 }
 
@@ -281,7 +240,6 @@ final intentionsRepositoryProvider = Provider<IntentionsRepository>((ref) {
   final bootstrap = ref.watch(firebaseBootstrapProvider);
   if (bootstrap.isLive) return FirebaseIntentionsRepository();
 
-  final uid =
-      ref.watch(authRepositoryProvider).currentUid ?? AuthRepository.demoUid;
-  return DemoIntentionsRepository(currentUid: uid);
+  final appUser = ref.watch(authRepositoryProvider).currentUser;
+  return DemoIntentionsRepository(currentAppUser: appUser);
 });

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../design_system/amen_button_label.dart';
 import '../../../design_system/amen_colors.dart';
+import '../../../localization/app_localizations.dart';
+import '../../notifications/data/notification_service.dart';
 import '../data/auth_repository.dart';
 
 void showAuthModal(BuildContext context, WidgetRef ref) {
@@ -34,7 +37,10 @@ class _AuthModalState extends ConsumerState<_AuthModal> {
       final repo = ref.read(authRepositoryProvider);
       final cred = await repo.signInWithGoogle();
       if (cred != null && mounted) {
-        navigator.pop();
+        await ref
+            .read(notificationServiceProvider)
+            .requestAuthorizationPermission();
+        if (mounted) navigator.pop();
       }
     } catch (e) {
       if (mounted) {
@@ -61,7 +67,10 @@ class _AuthModalState extends ConsumerState<_AuthModal> {
       final repo = ref.read(authRepositoryProvider);
       final cred = await repo.signInWithApple();
       if (cred != null && mounted) {
-        navigator.pop();
+        await ref
+            .read(notificationServiceProvider)
+            .requestAuthorizationPermission();
+        if (mounted) navigator.pop();
       }
     } catch (e) {
       if (mounted) {
@@ -80,6 +89,7 @@ class _AuthModalState extends ConsumerState<_AuthModal> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final textTheme = Theme.of(context).textTheme;
 
     final userAsync = ref.watch(authStateProvider);
@@ -145,9 +155,7 @@ class _AuthModalState extends ConsumerState<_AuthModal> {
             user != null && !user.isAnonymous
                 ? 'Signed in as ${user.displayName ?? user.email ?? 'Pilgrim'}'
                 : 'Sign in to sync your prayers & pin intentions across devices.',
-            style: textTheme.bodyMedium?.copyWith(
-              color: AmenColors.mutedText,
-            ),
+            style: textTheme.bodyMedium?.copyWith(color: AmenColors.mutedText),
           ),
           const SizedBox(height: 24),
           if (_errorMessage != null) ...[
@@ -180,41 +188,65 @@ class _AuthModalState extends ConsumerState<_AuthModal> {
                 if (mounted) navigator.pop();
               },
               icon: const Icon(Icons.logout, color: AmenColors.amenGold),
-              label: const Text('Sign Out', style: TextStyle(color: AmenColors.amenGold)),
+              label: AmenButtonLabel(
+                l10n.signOut,
+                style: const TextStyle(color: AmenColors.amenGold),
+              ),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                side: BorderSide(color: AmenColors.amenGold.withValues(alpha: 0.4)),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                side: BorderSide(
+                  color: AmenColors.amenGold.withValues(alpha: 0.4),
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
               ),
             ),
           ] else ...[
             ElevatedButton.icon(
               onPressed: _handleGoogleSignIn,
-              icon: const Icon(Icons.g_mobiledata, color: Colors.black, size: 24),
-              label: const Text(
-                'Sign in with Google',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+              icon: const Icon(
+                Icons.g_mobiledata,
+                color: Colors.black,
+                size: 24,
+              ),
+              label: AmenButtonLabel(
+                l10n.signInWithGoogle,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.black,
                 backgroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                minimumSize: const Size.fromHeight(47),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
               ),
             ),
             const SizedBox(height: 12),
             ElevatedButton.icon(
               onPressed: _handleAppleSignIn,
               icon: const Icon(Icons.apple, color: Colors.white, size: 22),
-              label: const Text(
-                'Sign in with Apple',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.white),
+              label: AmenButtonLabel(
+                l10n.signInWithApple,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white,
+                ),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(vertical: 14),
+                minimumSize: const Size.fromHeight(47),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 side: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -222,7 +254,7 @@ class _AuthModalState extends ConsumerState<_AuthModal> {
               child: TextButton(
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text(
-                  'Continue Anonymously',
+                  l10n.continueAnonymously,
                   style: textTheme.bodyMedium?.copyWith(
                     color: AmenColors.mutedText,
                     decoration: TextDecoration.underline,

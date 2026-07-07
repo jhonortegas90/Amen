@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../../../design_system/amen_button_label.dart';
 import '../../../../design_system/amen_colors.dart';
+import '../../../../localization/app_localizations.dart';
 import '../../data/scripture_bank.dart';
 import '../../domain/intention.dart';
+import '../../../notifications/presentation/widgets/send_support_message_modal.dart';
 
 void showAmenFeedbackModal(BuildContext context, Intention intention) {
   final scripture = ScriptureBank.getScriptureForCategory(intention.category);
@@ -11,24 +14,20 @@ void showAmenFeedbackModal(BuildContext context, Intention intention) {
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (context) => _AmenFeedbackModal(
-      intention: intention,
-      scripture: scripture,
-    ),
+    builder: (context) =>
+        _AmenFeedbackModal(intention: intention, scripture: scripture),
   );
 }
 
 class _AmenFeedbackModal extends StatelessWidget {
-  const _AmenFeedbackModal({
-    required this.intention,
-    required this.scripture,
-  });
+  const _AmenFeedbackModal({required this.intention, required this.scripture});
 
   final Intention intention;
   final ScriptureItem scripture;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final textTheme = Theme.of(context).textTheme;
 
     return Container(
@@ -94,7 +93,7 @@ class _AmenFeedbackModal extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                'AMEN CONFIRMED',
+                l10n.amenConfirmed,
                 style: textTheme.labelMedium?.copyWith(
                   color: AmenColors.amenGold,
                   letterSpacing: 2.0,
@@ -105,11 +104,11 @@ class _AmenFeedbackModal extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'You joined in prayer for "${intention.category.displayName}"',
-            textAlign: TextAlign.center,
-            style: textTheme.bodySmall?.copyWith(
-              color: AmenColors.mutedText,
+            l10n.joinedPrayerFor(
+              l10n.prayerCategory(intention.category.displayName),
             ),
+            textAlign: TextAlign.center,
+            style: textTheme.bodySmall?.copyWith(color: AmenColors.mutedText),
           ),
           const SizedBox(height: 24),
           Container(
@@ -156,28 +155,61 @@ class _AmenFeedbackModal extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AmenColors.amenGold,
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    showSendSupportMessageModal(context, intention);
+                  },
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AmenColors.pureWhite,
+                    side: BorderSide(
+                      color: AmenColors.amenGold.withValues(alpha: 0.5),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  icon: const Icon(
+                    Icons.chat_bubble_outline_rounded,
+                    size: 18,
+                    color: AmenColors.amenGold,
+                  ),
+                  label: AmenButtonLabel(
+                    l10n.leaveNote,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ),
-              child: const Text(
-                'Amen & Close',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.8,
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AmenColors.amenGold,
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: AmenButtonLabel(
+                    l10n.amenAndClose,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
         ],
       ),

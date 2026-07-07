@@ -26,7 +26,7 @@ describe("Cloud Functions", () => {
       const wrapped = myTestEnv.wrap(myFunctions.createIntention);
       await expect(wrapped({ auth: { uid: "alice" }, data: {} })).rejects.toThrow("Text is required.");
       await expect(wrapped({ auth: { uid: "alice" }, data: { text: "   " } })).rejects.toThrow("Text must be 1-250 characters.");
-      await expect(wrapped({ auth: { uid: "alice" }, data: { text: "fuck" } })).rejects.toThrow("Text did not pass moderation.");
+      await expect(wrapped({ auth: { uid: "alice" }, data: { text: "fuck" } })).rejects.toThrow("Text did not pass moderation safety checks.");
     });
 
     it("should create an intention", async () => {

@@ -40,11 +40,12 @@ class AuthRepository {
     required this.bootstrap,
     this.firebaseAuth,
     GoogleSignIn? googleSignIn,
-  }) : googleSignIn = googleSignIn ??
-            GoogleSignIn(
-              clientId: kIsWeb ? webClientId : null,
-              serverClientId: webClientId,
-            );
+  }) : googleSignIn =
+           googleSignIn ??
+           GoogleSignIn(
+             clientId: kIsWeb ? webClientId : null,
+             serverClientId: kIsWeb ? null : webClientId,
+           );
 
   static const demoUid = 'demo-local-author';
 
@@ -175,6 +176,24 @@ class AuthRepository {
     await googleSignIn.signOut();
     await _auth.signOut();
     await ensureSignedIn();
+  }
+
+  Future<void> deleteAccount() async {
+    if (!isLive) return;
+    final user = _auth.currentUser;
+    if (user != null) {
+      await user.delete();
+    }
+    await googleSignIn.signOut();
+    await ensureSignedIn();
+  }
+
+  Future<void> updateDisplayName(String name) async {
+    if (!isLive) return;
+    final user = _auth.currentUser;
+    if (user != null) {
+      await user.updateDisplayName(name);
+    }
   }
 
   Future<UserCredential?> _linkAnonymousOrSignIn(

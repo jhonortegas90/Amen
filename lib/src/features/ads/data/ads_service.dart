@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
@@ -10,13 +11,21 @@ class AdsService {
   bool _initialized = false;
 
   String get _interstitialUnitId {
-    if (Platform.isIOS) return 'ca-app-pub-3940256099942544/4411468910';
-    return 'ca-app-pub-3940256099942544/1033173712';
+    if (kDebugMode) {
+      if (Platform.isIOS) return 'ca-app-pub-3940256099942544/4411468910';
+      return 'ca-app-pub-3940256099942544/1033173712';
+    }
+    if (Platform.isIOS) return 'ca-app-pub-3836600923144289/3105853092';
+    return 'ca-app-pub-3836600923144289/2211573828';
   }
 
   String get _rewardedUnitId {
-    if (Platform.isIOS) return 'ca-app-pub-3940256099942544/1712485313';
-    return 'ca-app-pub-3940256099942544/5224354917';
+    if (kDebugMode) {
+      if (Platform.isIOS) return 'ca-app-pub-3940256099942544/1712485313';
+      return 'ca-app-pub-3940256099942544/5224354917';
+    }
+    if (Platform.isIOS) return 'ca-app-pub-3836600923144289/8278288726';
+    return 'ca-app-pub-3836600923144289/2261499116';
   }
 
   Future<void> initialize() async {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../../design_system/amen_button_label.dart';
 import '../../../../design_system/amen_colors.dart';
+import '../../../../localization/app_localizations.dart';
 import '../config/onboarding_config.dart';
 
 void showLegalTermsModal(BuildContext context, {required bool isPrivacy}) {
@@ -19,6 +21,7 @@ class _LegalTermsModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final textTheme = Theme.of(context).textTheme;
 
     final title = isPrivacy
@@ -62,7 +65,9 @@ class _LegalTermsModal extends StatelessWidget {
           Row(
             children: [
               Icon(
-                isPrivacy ? Icons.privacy_tip_outlined : Icons.description_outlined,
+                isPrivacy
+                    ? Icons.privacy_tip_outlined
+                    : Icons.description_outlined,
                 color: AmenColors.amenGold,
                 size: 24,
               ),
@@ -108,9 +113,12 @@ class _LegalTermsModal extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                 ),
               ),
-              child: const Text(
-                'Close',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              child: AmenButtonLabel(
+                l10n.close,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),

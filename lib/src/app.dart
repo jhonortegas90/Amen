@@ -6,6 +6,7 @@ import 'design_system/amen_theme.dart';
 import 'features/ads/data/ads_service.dart';
 import 'features/auth/data/auth_repository.dart';
 import 'features/notifications/data/notification_service.dart';
+import 'features/profile/data/profile_settings_provider.dart';
 import 'localization/app_localizations.dart';
 import 'routing/app_router.dart';
 
@@ -21,9 +22,13 @@ class _AmenAppState extends ConsumerState<AmenApp> {
   void initState() {
     super.initState();
     Future.microtask(() async {
-      final auth = ref.read(authRepositoryProvider);
-      final uid = await auth.ensureSignedIn();
-      await ref.read(notificationServiceProvider).registerDevice(uid);
+      try {
+        final auth = ref.read(authRepositoryProvider);
+        final uid = await auth.ensureSignedIn();
+        await ref.read(notificationServiceProvider).registerDevice(uid);
+      } catch (error) {
+        debugPrint('Startup auth/notification setup skipped: $error');
+      }
       await ref.read(adsServiceProvider).initialize();
     });
   }
@@ -31,6 +36,8 @@ class _AmenAppState extends ConsumerState<AmenApp> {
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(appRouterProvider);
+    final selectedLocale = ref.watch(appLocaleProvider);
+    final textScaleFactor = ref.watch(textScaleFactorProvider);
 
     return MaterialApp.router(
       title: 'Amen',
@@ -39,7 +46,7 @@ class _AmenAppState extends ConsumerState<AmenApp> {
       theme: AmenTheme.dark,
       darkTheme: AmenTheme.dark,
       themeMode: ThemeMode.dark,
-      locale: WidgetsBinding.instance.platformDispatcher.locale,
+      locale: selectedLocale,
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: const [
         AppLocalizations.delegate,
@@ -49,7 +56,10 @@ class _AmenAppState extends ConsumerState<AmenApp> {
       ],
       builder: (context, child) {
         return MediaQuery(
-          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+          data: MediaQuery.of(context).copyWith(
+            alwaysUse24HourFormat: false,
+            textScaler: TextScaler.linear(textScaleFactor),
+          ),
           child: child ?? const SizedBox.shrink(),
         );
       },

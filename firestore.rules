@@ -6,28 +6,50 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function catalogAdmin() {
+      return signedIn()
+        && request.auth.token.email == 'j.a.t.creativestudios@gmail.com'
+        && request.auth.token.catalogAdmin == true;
+    }
+
+    match /prayer_catalog_published/{locale}/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /prayer_catalog_drafts/{scope}/{document=**} {
+      allow read, write: if catalogAdmin();
+    }
+
+    match /altar_music/{musicId} {
+      allow read: if true;
+      allow write: if catalogAdmin();
+    }
+
+    match /catalog_admin_audit/{auditId} {
+      allow read: if catalogAdmin();
+      allow write: if false;
+    }
+
     match /intentions/{intentionId} {
       allow read: if resource.data.status == 'approved';
-      allow create: if signedIn()
-        && request.resource.data.authorUid == request.auth.uid
-        && request.resource.data.text is string
-        && request.resource.data.text.size() <= 250
-        && request.resource.data.amenCount == 0
-        && request.resource.data.isPinned == false;
+      allow create, update: if false;
+      allow delete: if false;
+    }
+
+    match /notifications/{notificationId} {
+      allow read: if signedIn() && resource.data.recipientUid == request.auth.uid;
+      allow read: if signedIn() && resource.data.recipientUid == 'community';
+      allow create: if false;
       allow update: if signedIn()
-        && (
-          (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['amenCount'])
-            && request.resource.data.amenCount == resource.data.amenCount + 1)
-          ||
-          (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isPinned', 'pinnedUntil'])
-            && request.resource.data.isPinned == true)
-        );
+        && resource.data.recipientUid == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead']);
       allow delete: if false;
     }
 
     match /reports/{reportId} {
       allow read: if false;
-      allow create: if signedIn() && request.resource.data.reporterUid == request.auth.uid;
+      allow create: if false;
       allow update, delete: if false;
     }
 

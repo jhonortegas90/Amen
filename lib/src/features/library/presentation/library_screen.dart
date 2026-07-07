@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../design_system/amen_colors.dart';
+import '../../profile/data/profile_settings_provider.dart';
 import '../data/library_repository.dart';
 import '../domain/prayer_reflection.dart';
 
@@ -13,7 +14,7 @@ class LibraryScreen extends ConsumerStatefulWidget {
 }
 
 class _LibraryScreenState extends ConsumerState<LibraryScreen> {
-  String _selectedCategory = 'All';
+  String? _selectedCategoryId;
   String _searchQuery = '';
   final _searchController = TextEditingController();
 
@@ -25,12 +26,20 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final repository = ref.watch(libraryRepositoryProvider);
-    final textTheme = Theme.of(context).textTheme;
-    final items = repository.getItems(
-      category: _selectedCategory,
-      searchQuery: _searchQuery,
+    final locale = normalizeCatalogLocale(
+      ref.watch(appLocaleProvider).languageCode,
     );
+    final categoriesAsync = ref.watch(
+      publishedCatalogCategoriesProvider(locale),
+    );
+    final itemsAsync = ref.watch(
+      publishedPrayerItemsProvider((
+        locale: locale,
+        categoryId: _selectedCategoryId,
+        searchQuery: _searchQuery,
+      )),
+    );
+    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       backgroundColor: AmenColors.night,
@@ -57,11 +66,19 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
               style: const TextStyle(color: AmenColors.pureWhite),
               decoration: InputDecoration(
                 hintText: 'Search prayers, themes, scriptures...',
-                hintStyle: TextStyle(color: AmenColors.mutedText.withValues(alpha: 0.7)),
-                prefixIcon: const Icon(Icons.search, color: AmenColors.amenGold),
+                hintStyle: TextStyle(
+                  color: AmenColors.mutedText.withValues(alpha: 0.7),
+                ),
+                prefixIcon: const Icon(
+                  Icons.search,
+                  color: AmenColors.amenGold,
+                ),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear, color: AmenColors.mutedText),
+                        icon: const Icon(
+                          Icons.clear,
+                          color: AmenColors.mutedText,
+                        ),
                         onPressed: () {
                           _searchController.clear();
                           setState(() => _searchQuery = '');
@@ -95,60 +112,111 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
           ),
           SizedBox(
             height: 44,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: repository.categories.length,
-              itemBuilder: (context, index) {
-                final cat = repository.categories[index];
-                final isSelected = cat == _selectedCategory;
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: FilterChip(
-                    label: Text(cat),
-                    selected: isSelected,
-                    onSelected: (_) => setState(() => _selectedCategory = cat),
-                    selectedColor: AmenColors.amenGold.withValues(alpha: 0.25),
-                    backgroundColor: AmenColors.nightElevated,
-                    checkmarkColor: AmenColors.amenGold,
-                    labelStyle: TextStyle(
-                      color: isSelected ? AmenColors.amenGold : AmenColors.mutedText,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+            child: categoriesAsync.when(
+              loading: () => const Center(
+                child: LinearProgressIndicator(color: AmenColors.amenGold),
+              ),
+              error: (error, _) => Center(
+                child: Text(
+                  '$error',
+                  style: const TextStyle(color: AmenColors.danger),
+                ),
+              ),
+              data: (categories) {
+                return ListView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  children: [
+                    _CategoryChip(
+                      label: 'All',
+                      selected: _selectedCategoryId == null,
+                      onSelected: () =>
+                          setState(() => _selectedCategoryId = null),
                     ),
-                    side: BorderSide(
-                      color: isSelected
-                          ? AmenColors.amenGold
-                          : AmenColors.blueMist.withValues(alpha: 0.2),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
+                    for (final category in categories)
+                      _CategoryChip(
+                        label: category.title,
+                        selected: category.id == _selectedCategoryId,
+                        onSelected: () {
+                          setState(() => _selectedCategoryId = category.id);
+                        },
+                      ),
+                  ],
                 );
               },
             ),
           ),
           const SizedBox(height: 12),
           Expanded(
-            child: items.isEmpty
-                ? Center(
-                    child: Text(
-                      'No prayers found matching "$_searchQuery"',
-                      style: textTheme.bodyMedium?.copyWith(
-                        color: AmenColors.mutedText,
+            child: itemsAsync.when(
+              loading: () => const Center(
+                child: CircularProgressIndicator(color: AmenColors.amenGold),
+              ),
+              error: (error, _) => Center(
+                child: Text(
+                  '$error',
+                  style: const TextStyle(color: AmenColors.danger),
+                ),
+              ),
+              data: (items) => items.isEmpty
+                  ? Center(
+                      child: Text(
+                        _searchQuery.isEmpty
+                            ? 'No prayers published yet'
+                            : 'No prayers found matching "$_searchQuery"',
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: AmenColors.mutedText,
+                        ),
                       ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(20),
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        final item = items[index];
+                        return _LibraryCard(item: item);
+                      },
                     ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(20),
-                    itemCount: items.length,
-                    itemBuilder: (context, index) {
-                      final item = items[index];
-                      return _LibraryCard(item: item);
-                    },
-                  ),
+            ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _CategoryChip extends StatelessWidget {
+  const _CategoryChip({
+    required this.label,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: FilterChip(
+        label: Text(label),
+        selected: selected,
+        onSelected: (_) => onSelected(),
+        selectedColor: AmenColors.amenGold.withValues(alpha: 0.25),
+        backgroundColor: AmenColors.nightElevated,
+        checkmarkColor: AmenColors.amenGold,
+        labelStyle: TextStyle(
+          color: selected ? AmenColors.amenGold : AmenColors.mutedText,
+          fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+        ),
+        side: BorderSide(
+          color: selected
+              ? AmenColors.amenGold
+              : AmenColors.blueMist.withValues(alpha: 0.2),
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
     );
   }
@@ -181,6 +249,7 @@ class _LibraryCard extends StatelessWidget {
         ],
       ),
       child: ExpansionTile(
+        key: PageStorageKey('library-reflection-tile-${item.id}'),
         tilePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         iconColor: AmenColors.amenGold,
         collapsedIconColor: AmenColors.mutedText,
